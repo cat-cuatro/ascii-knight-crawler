@@ -1,0 +1,35 @@
+pub struct MonsterArchetype {
+    pub name: String,
+    pub health: u32,
+    pub attack: u32,
+    pub defense: u32,
+}
+
+impl MonsterArchetype {
+    pub fn new(name: &str, health: u32, attack: u32, defense: u32) -> Self {
+        MonsterArchetype {
+            name: name.to_string(),
+            health,
+            attack,
+            defense,
+        }
+    }
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
+    pub fn get_health(&self) -> u32 {
+        self.health
+    }
+    pub fn get_attack(&self) -> u32 {
+        self.attack
+    }
+    pub fn get_defense(&self) -> u32 {
+        self.defense
+    }
+}
+pub fn create_goblin() -> MonsterArchetype {
+    MonsterArchetype::new("Goblin", 50, 10, 5)
+}
+pub fn create_slime() -> MonsterArchetype {
+    MonsterArchetype::new("Slime", 30, 5, 2)
+}

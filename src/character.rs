@@ -1,12 +1,57 @@
 use crate::archetype;
+//use crate::world_tiles::Tile;
+use crate::overworld;
+use std::collections::HashMap;
 
 pub struct Character {
     name: String,
     max_health: u32,
     current_health: u32,
     defense: u32,
+    coin: u32,
     position: (i32, i32),
     chosen_archetype: archetype::Archetype,
+    surrounding_tiles: HashMap<String, char>,
+}
+
+#[derive(Debug, Clone, Copy)]
+enum Direction {
+    North,
+    South,
+    East,
+    West,
+    Northwest,
+    Northeast,
+    Southwest,
+    Southeast,
+}
+
+impl Direction {
+    pub fn all() -> Vec<Direction> {
+        vec![
+            Direction::North,
+            Direction::South,
+            Direction::East,
+            Direction::West,
+            Direction::Northeast,
+            Direction::Northwest,
+            Direction::Southeast,
+            Direction::Southwest,
+        ]
+    }
+
+    pub fn to_string(&self) -> &str {
+        match self {
+            Direction::North => "North",
+            Direction::South => "South",
+            Direction::East => "East",
+            Direction::West => "West",
+            Direction::Northeast => "Northeast",
+            Direction::Northwest => "Northwest",
+            Direction::Southeast => "Southeast",
+            Direction::Southwest => "Southwest",
+        }
+    }
 }
 
 impl Character {
@@ -18,40 +63,76 @@ impl Character {
             max_health: class.health,
             current_health: class.health,
             defense: class.defense,
-            position: (0, 0),
+            coin: 0,
+            position: (4, 4),
+            surrounding_tiles: HashMap::new(),
         }
     }
 
     pub fn get_status(&self) -> String {
         return format!(
-            "Name: {}\nHealth: {}/{}\nDefense: {}\nPosition: ({}, {})",
+            "Name: {} Health: {}/{} Defense: {} Coins: {} Position: ({}, {})",
             self.name,
             self.current_health,
             self.max_health,
             self.defense,
+            self.coin,
             self.position.0,
             self.position.1
         );
     }
 
-    pub fn move_east(&mut self) {
+    pub fn get_position(&self) -> (i32, i32) {
+        (self.position.0, self.position.1)
+    }
+
+    pub fn observe_surroundings(&mut self, world: &overworld::Overworld) {
+        self.surrounding_tiles.clear();
+        for direction in Direction::all().iter() {
+            let new_position = match direction {
+                Direction::North => (self.position.0, self.position.1 - 1),
+                Direction::South => (self.position.0, self.position.1 + 1),
+                Direction::East => (self.position.0 + 1, self.position.1),
+                Direction::West => (self.position.0 - 1, self.position.1),
+                Direction::Northeast => (self.position.0 + 1, self.position.1 - 1),
+                Direction::Northwest => (self.position.0 - 1, self.position.1 - 1),
+                Direction::Southeast => (self.position.0 + 1, self.position.1 + 1),
+                Direction::Southwest => (self.position.0 - 1, self.position.1 + 1),
+            };
+            if let Some(tile) = world.get_tile(new_position) {
+                //println!("Tile at {:?}: {:?}", direction.to_string(), tile.get_symbol());
+                self.surrounding_tiles.insert(direction.to_string().to_string(), tile.get_symbol());
+            }
+        }
+        //println!("Surrounding tiles: {:?}", self.surrounding_tiles);
+    }
+
+    pub fn move_east(&mut self) -> (i32, i32) {
         let new_position = (self.position.0 + 1, self.position.1);
+        let old_position = self.position;
         self.position = new_position;
+        return old_position;
     }
 
-    pub fn move_west(&mut self) {
+    pub fn move_west(&mut self) -> (i32, i32) {
         let new_position = (self.position.0 - 1, self.position.1);
+        let old_position = self.position;
         self.position = new_position;
+        return old_position;
     }
 
-    pub fn move_north(&mut self) {
+    pub fn move_north(&mut self) -> (i32, i32) {
         let new_position = (self.position.0, self.position.1 - 1);
+        let old_position = self.position;
         self.position = new_position;
+        return old_position;
     }
 
-    pub fn move_south(&mut self) {
+    pub fn move_south(&mut self) -> (i32, i32) {
         let new_position = (self.position.0, self.position.1 + 1);
+        let old_position = self.position;
         self.position = new_position;
+        return old_position;
     }
 
     pub fn take_damage(&mut self, damage: u32) {
@@ -59,6 +140,32 @@ impl Character {
             self.max_health = 0;
         } else {
             self.max_health -= damage;
+        }
+    }
+
+    pub fn detect_and_attack_surrounding_enemies(&self) -> bool {
+        for symbol in self.surrounding_tiles.values() {
+            if *symbol == 'G' || *symbol == 'S' {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    pub fn attack(&self) -> u32 {
+        10
+    }
+
+    pub fn obtain_coin(&mut self, amount: u32) {
+        self.coin += amount;
+    }
+
+    pub fn spend_coin(&mut self, amount: u32) -> bool {
+        if self.coin >= amount {
+            self.coin -= amount;
+            true
+        } else {
+            false
         }
     }
 
