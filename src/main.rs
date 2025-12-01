@@ -23,7 +23,7 @@ fn main() {
 fn test_overworld(mut player_character: character::Character) {
     let mut overworld = overworld::Overworld::new((10, 10));
     overworld.new_event(player_character.get_position());
-    
+    overworld.update_character_position((-1, -1), player_character.get_position());
     loop {
         print!("\x1B[2J\x1B[H");
         overworld.print_overworld();
