@@ -33,7 +33,7 @@ impl Overworld {
         };
         //let x = rng.random_range(0..self.tiles[0].len() as i32);
         //let y = rng.random_range(0..self.tiles.len() as i32);
-        self.tiles[spawn_coords.1 as usize][spawn_coords.0 as usize].spawn_enemy();
+        //self.tiles[spawn_coords.1 as usize][spawn_coords.0 as usize].spawn_enemy();
     }
 
     pub fn tick_world(&mut self) {
@@ -41,7 +41,6 @@ impl Overworld {
     }
 
     pub fn update_character_position(&mut self, old_position: (i32, i32), new_position: (i32, i32)) {
-        // Currently does nothing, but could be used for tracking character in the world
         let mut old_tile = self.get_tile_mut(old_position);
         if let Some(tile) = old_tile.as_mut() {
             tile.unset_character();
@@ -87,5 +86,26 @@ impl Overworld {
             }
         }
         return false;
+    }
+
+    pub fn resolve_combat(&mut self, character: &mut character::Character, target_position: (i32, i32)) -> bool {
+        if let Some(tile) = self.get_tile_mut(target_position) {
+            if let Some(enemy) = tile.get_enemy_mut() {
+                let char_damage = character.attack();
+                enemy.take_damage(char_damage);
+                
+                if enemy.is_alive() {
+                    let enemy_damage = enemy.attack();
+                    character.take_damage(enemy_damage);
+                    println!("Combat: Character dealt {} damage, took {} damage", char_damage, enemy_damage);
+                } else {
+                    character.obtain_coin(enemy.drop_loot());
+                    tile.despawn_enemy();
+                    println!("Enemy defeated!");
+                }
+                return true;
+            }
+        }
+        false
     }
 }

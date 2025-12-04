@@ -60,6 +60,12 @@ impl HostileEnemy {
         }
     }
 
+    pub fn drop_loot(&self) -> u32 {
+        let mut rng = rand::rng();
+        let loot_amount = rng.random_range(5..=15);
+        loot_amount
+    }
+
     pub fn attack(&self) -> u32 {
         self.attack
     }

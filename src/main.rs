@@ -8,6 +8,7 @@ mod overworld;
 mod world_tiles;
 mod hostile_enemy;
 mod monster_archetype;
+mod computer;
 
 fn main() {
     let mut character_name = String::new();
@@ -17,7 +18,8 @@ fn main() {
     println!("Welcome, {}!", character_name);
     let player_character = character::Character::new(character_name);
     println!("{:?}", player_character.get_status());
-    test_overworld(player_character);
+    //test_overworld(player_character);
+    computer_play(player_character);
 }
 
 fn test_overworld(mut player_character: character::Character) {
@@ -37,7 +39,14 @@ fn test_overworld(mut player_character: character::Character) {
         let old_position = match input.trim() {
             "n" => player_character.move_north(),
             "s" => player_character.move_south(),
-            "e" => player_character.move_east(),
+            "e" => {
+                let mut target_position = player_character.get_position();
+                target_position.0 += 1; // position to the east
+                if player_character.check_for_enemy(&character::Direction::East) {
+                    let temp = overworld.resolve_combat(&mut player_character, target_position);
+                }
+                player_character.move_east()
+            },
             "w" => player_character.move_west(),
             "q" => break,
             _ => player_character.get_position(),
@@ -47,18 +56,38 @@ fn test_overworld(mut player_character: character::Character) {
     }
 }
 
-fn play(mut computer_character: character::Character) {
+fn computer_play(mut computer_character: character::Character) {
+    let mut computer = computer::Computer::new();
     let mut overworld = overworld::Overworld::new((10, 10));
     overworld.new_event(computer_character.get_position());
-    
+    overworld.update_character_position((-1, -1), computer_character.get_position());
+
     loop {
         print!("\x1B[2J\x1B[H");
         overworld.print_overworld();
-        computer_character.observe_surroundings(&overworld);
         println!("{}", computer_character.get_status());
-        
+        computer_character.observe_surroundings(&overworld);
+        let action = computer.random_agent(&computer_character);
+        let old_position = match action {
+            "n" => computer_character.move_north(),
+            "s" => computer_character.move_south(),
+            "e" => {
+                let mut target_position = computer_character.get_position();
+                target_position.0 += 1; // position to the east
+                if computer_character.check_for_enemy(&character::Direction::East) {
+                    let temp = overworld.resolve_combat(&mut computer_character, target_position);
+                }
+                computer_character.move_east()
+            },
+            "w" => computer_character.move_west(),
+            _ => computer_character.get_position(),
+        };
+        overworld.update_character_position(old_position, computer_character.get_position());
+        if computer_character.is_alive() == false {
+            println!("Oh no! {} has been defeated!", computer_character.get_name());
+            break;
+        }
         thread::sleep(Duration::from_secs(5));
-
         overworld.new_event(computer_character.get_position());
     }
 }

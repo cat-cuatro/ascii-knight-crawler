@@ -15,7 +15,7 @@ pub struct Character {
 }
 
 #[derive(Debug, Clone, Copy)]
-enum Direction {
+pub enum Direction {
     North,
     South,
     East,
@@ -82,6 +82,10 @@ impl Character {
         );
     }
 
+    pub fn peek_health(&self) -> (u32, u32) {
+        (self.current_health, self.max_health)
+    }
+
     pub fn get_position(&self) -> (i32, i32) {
         (self.position.0, self.position.1)
     }
@@ -107,10 +111,21 @@ impl Character {
         //println!("Surrounding tiles: {:?}", self.surrounding_tiles);
     }
 
+    pub fn check_for_enemy(&self, direction: &Direction) -> bool {
+        if let Some(symbol) = self.surrounding_tiles.get(&direction.to_string().to_string()) {
+            if *symbol == 'G' || *symbol == 'S' {
+                return true;
+            }
+        }
+        return false;
+    }
+
     pub fn move_east(&mut self) -> (i32, i32) {
         let new_position = (self.position.0 + 1, self.position.1);
         let old_position = self.position;
-        self.position = new_position;
+        if self.check_for_enemy(&Direction::East) == false {
+            self.position = new_position;
+        }
         return old_position;
     }
 
@@ -170,10 +185,17 @@ impl Character {
     }
 
     pub fn heal(&mut self, amount: u32) {
-        self.max_health += amount;
+        if self.spend_coin(amount) {
+            self.current_health += amount;
+        }
+        self.current_health += amount;
     }
 
     pub fn is_alive(&self) -> bool {
         self.max_health > 0
+    }
+
+    pub fn get_name(&self) -> &str {
+        &self.name
     }
 }

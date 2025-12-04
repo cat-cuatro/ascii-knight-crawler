@@ -1,28 +1,37 @@
 use crate::character;
 use crate::overworld;
+use rand::Rng;
 
 
-pub fn act(computer_character: &mut character::Character, world: &overworld::Overworld) {
-    // Placeholder for future AI actions
+pub struct Computer {
+    last_action: Option<u32>,
+    in_combat: bool,
 }
 
-pub fn move_randomly(computer_character: &mut character::Character) {
-    let mut rng = rand::rng();
-    let dice = rng.random_range(1..=4);
-    match dice {
-        1 => computer_character.move_north(),
-        2 => computer_character.move_south(),
-        3 => computer_character.move_east(),
-        4 => computer_character.move_west(),
-        _ => {},
-    }
-}
-
-pub fn enemy_is_nearby(computer_character: &character::Character, world: &overworld::Overworld) -> bool {
-    for symbol in computer_character.surrounding_tiles.values() {
-        if *symbol == 'G' || *symbol == 'S' {
-            return true;
+impl Computer {
+    pub fn new() -> Self {
+        Computer {
+            last_action: None,
+            in_combat: false,
         }
     }
-    return false;
+
+    pub fn random_agent(&self, character: &character::Character) -> &str {
+        let mut rng = rand::rng();
+        let mut dice;
+        if character.peek_health().0 < character.peek_health().1 {
+            dice = rng.random_range(1..=5);
+        }
+        else {
+            dice = rng.random_range(1..=4);
+        }
+        match dice {
+            1 => "n",
+            2 => "s",
+            3 => "e",
+            4 => "w",
+            5 => "h",
+            _ => "h",
+        }
+    }
 }
