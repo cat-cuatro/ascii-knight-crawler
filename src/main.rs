@@ -21,7 +21,7 @@ fn main() {
     //test_overworld(player_character);
     computer_play(player_character);
 }
-
+/* 
 fn test_overworld(mut player_character: character::Character) {
     let mut overworld = overworld::Overworld::new((10, 10));
     overworld.new_event(player_character.get_position());
@@ -54,7 +54,7 @@ fn test_overworld(mut player_character: character::Character) {
         overworld.update_character_position(old_position, player_character.get_position());
         overworld.new_event(player_character.get_position());
     }
-}
+} */
 
 fn computer_play(mut computer_character: character::Character) {
     let mut computer = computer::Computer::new();
@@ -69,18 +69,23 @@ fn computer_play(mut computer_character: character::Character) {
         computer_character.observe_surroundings(&overworld);
         let action = computer.random_agent(&computer_character);
         let old_position = match action {
-            "n" => computer_character.move_north(),
-            "s" => computer_character.move_south(),
-            "e" => {
-                let mut target_position = computer_character.get_position();
-                target_position.0 += 1; // position to the east
-                if computer_character.check_for_enemy(&character::Direction::East) {
-                    let temp = overworld.resolve_combat(&mut computer_character, target_position);
-                }
-                computer_character.move_east()
+            "n" => {
+                let walkable = move_and_resolve_combat("n", &mut computer_character, &mut overworld);
+                computer_character.move_north(walkable)
             },
-            "w" => computer_character.move_west(),
-            _ => computer_character.get_position(),
+            "s" => {
+                let walkable = move_and_resolve_combat("s", &mut computer_character, &mut overworld);
+                computer_character.move_south(walkable)
+            },
+            "e" => {
+                let walkable = move_and_resolve_combat("e", &mut computer_character, &mut overworld);
+                computer_character.move_east(walkable)
+            },
+            "w" => {
+                let walkable = move_and_resolve_combat("w", &mut computer_character, &mut overworld);
+                computer_character.move_west(walkable)
+            },
+            _ => panic!("Invalid direction from computer agent"),
         };
         overworld.update_character_position(old_position, computer_character.get_position());
         if computer_character.is_alive() == false {
@@ -90,6 +95,38 @@ fn computer_play(mut computer_character: character::Character) {
         thread::sleep(Duration::from_secs(5));
         overworld.new_event(computer_character.get_position());
     }
+}
+
+fn move_and_resolve_combat(direction: &str, character: &mut character::Character, overworld: &mut overworld::Overworld) -> bool {
+    //let combat_ended
+    let pos = character.get_position();
+    let mut target_direction;
+    let mut tile_walkable = true;
+    let target_position = match direction {
+        //let mut pos = character.get_position();
+        "n" => {
+            target_direction = &character::Direction::North;
+            (pos.0, pos.1 - 1)
+        },
+        "s" => {
+            target_direction = &character::Direction::South;
+            (pos.0, pos.1 + 1)
+        },
+        "e" => {
+            target_direction = &character::Direction::East;
+            (pos.0 + 1, pos.1)
+        },
+        "w" => {
+            target_direction = &character::Direction::West;
+            (pos.0 - 1, pos.1)
+        },
+        _ => panic!("Invalid direction"),
+    };
+
+    if character.check_for_enemy(target_direction) {
+        tile_walkable = overworld.resolve_combat(character, target_position);
+    }
+    return tile_walkable;
 }
 /*
 fn test_overworld(mut player_character: character::Character) {

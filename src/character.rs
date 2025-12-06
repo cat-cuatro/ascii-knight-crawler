@@ -107,6 +107,10 @@ impl Character {
                 //println!("Tile at {:?}: {:?}", direction.to_string(), tile.get_symbol());
                 self.surrounding_tiles.insert(direction.to_string().to_string(), tile.get_symbol());
             }
+            else {
+                //println!("Tile at {:?}: Out of bounds", direction.to_string());
+                self.surrounding_tiles.insert(direction.to_string().to_string(), '#');
+            }
         }
         //println!("Surrounding tiles: {:?}", self.surrounding_tiles);
     }
@@ -120,33 +124,39 @@ impl Character {
         return false;
     }
 
-    pub fn move_east(&mut self) -> (i32, i32) {
+    pub fn move_east(&mut self, walkable: bool) -> (i32, i32) {
         let new_position = (self.position.0 + 1, self.position.1);
         let old_position = self.position;
-        if self.check_for_enemy(&Direction::East) == false {
+        if walkable && self.surrounding_tiles.get("East") != Some(&'#') {
             self.position = new_position;
         }
         return old_position;
     }
 
-    pub fn move_west(&mut self) -> (i32, i32) {
+    pub fn move_west(&mut self, walkable: bool) -> (i32, i32) {
         let new_position = (self.position.0 - 1, self.position.1);
         let old_position = self.position;
-        self.position = new_position;
+        if walkable && self.surrounding_tiles.get("West") != Some(&'#') {
+            self.position = new_position;
+        }
         return old_position;
     }
 
-    pub fn move_north(&mut self) -> (i32, i32) {
+    pub fn move_north(&mut self, walkable: bool) -> (i32, i32) {
         let new_position = (self.position.0, self.position.1 - 1);
         let old_position = self.position;
-        self.position = new_position;
+        if walkable && self.surrounding_tiles.get("North") != Some(&'#') {
+            self.position = new_position;
+        }
         return old_position;
     }
 
-    pub fn move_south(&mut self) -> (i32, i32) {
+    pub fn move_south(&mut self, walkable: bool) -> (i32, i32) {
         let new_position = (self.position.0, self.position.1 + 1);
         let old_position = self.position;
-        self.position = new_position;
+        if walkable && self.surrounding_tiles.get("South") != Some(&'#') {
+            self.position = new_position;
+        }
         return old_position;
     }
 

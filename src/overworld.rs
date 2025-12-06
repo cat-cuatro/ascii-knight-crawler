@@ -88,24 +88,25 @@ impl Overworld {
         return false;
     }
 
-    pub fn resolve_combat(&mut self, character: &mut character::Character, target_position: (i32, i32)) -> bool {
+    pub fn resolve_combat(&mut self, character: &mut character::Character, target_position: (i32, i32)) -> bool{
+        let mut tile_walkable = true;
         if let Some(tile) = self.get_tile_mut(target_position) {
             if let Some(enemy) = tile.get_enemy_mut() {
                 let char_damage = character.attack();
                 enemy.take_damage(char_damage);
-                
                 if enemy.is_alive() {
                     let enemy_damage = enemy.attack();
                     character.take_damage(enemy_damage);
                     println!("Combat: Character dealt {} damage, took {} damage", char_damage, enemy_damage);
+                    tile_walkable = false;
                 } else {
                     character.obtain_coin(enemy.drop_loot());
                     tile.despawn_enemy();
                     println!("Enemy defeated!");
+                    tile_walkable = true;
                 }
-                return true;
             }
         }
-        false
+        return tile_walkable;
     }
 }
