@@ -114,15 +114,15 @@ impl Character {
         }
         //println!("Surrounding tiles: {:?}", self.surrounding_tiles);
     }
-    /* 
+
     pub fn check_for_enemy(&self, direction: &Direction) -> bool {
         if let Some(symbol) = self.surrounding_tiles.get(&direction.to_string().to_string()) {
-            if *symbol == 'G' || *symbol == 'S' {
+            if *symbol != '.' && *symbol != '#' {
                 return true;
             }
         }
         return false;
-    }*/
+    }
 
     pub fn move_east(&mut self, walkable: bool) -> (i32, i32) {
         let new_position = (self.position.0 + 1, self.position.1);
