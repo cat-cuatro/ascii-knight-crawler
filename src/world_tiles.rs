@@ -22,13 +22,16 @@ impl Tile {
         }
     }
 
-    pub fn spawn_enemy(&mut self) {
-        let enemy = HostileEnemy::new((self.position.0, self.position.1));
+    pub fn spawn_enemy(&mut self, difficulty: u32) {
+        let enemy = HostileEnemy::new((self.position.0, self.position.1), difficulty);
         self.npc = Some(enemy);
         self.symbol = match self.npc.as_ref().unwrap().get_name() {
             "Goblin" => 'G',
             "Slime" => 'S',
-            _ => 'E',
+            "Hobgoblin" => 'H',
+            "Imp" => 'I',
+            "Rat" => 'R',
+            _ => panic!("Unknown enemy type"),
         };
         self.walkable = false;
     }

@@ -12,13 +12,19 @@ pub struct HostileEnemy {
 }
 
 impl HostileEnemy {
-    pub fn new(position: (i32, i32)) -> Self {
+    pub fn new(position: (i32, i32), difficulty: u32) -> Self {
         let mut rng = rand::rng();
-        let dice = rng.random_range(1..=2);
+        let mut dice = rng.random_range(1..=2);
+        if difficulty >= 3 {
+            dice = rng.random_range(1..=5);
+        }
         let monster = match dice {
             1 => monster_archetype::create_goblin(),
             2 => monster_archetype::create_slime(),
-            _ => monster_archetype::create_goblin(),
+            3 => monster_archetype::create_imp(),
+            4 => monster_archetype::create_rat(),
+            5 => monster_archetype::create_hobgoblin(),
+            _ => panic!("Invalid dice roll for monster archetype"),
         };
         HostileEnemy {
             name: monster.get_name().to_string(),

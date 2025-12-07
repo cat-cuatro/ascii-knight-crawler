@@ -4,6 +4,9 @@ use rand::Rng;
 
 pub struct Overworld {
     tiles: Vec<Vec<Tile>>,
+    survival_score: u32,
+    ticks: u32,
+    difficulty: u32,
 }
 
 impl Overworld {
@@ -17,16 +20,25 @@ impl Overworld {
             }
             tiles.push(row);
         }
-        Overworld { tiles }
+        Overworld {
+            tiles, 
+            survival_score: 0,
+            ticks: 0,
+            difficulty: 1,
+        }
     }
 
     pub fn new_event(&mut self, character_location: (i32, i32)) {
         let mut rng = rand::rng();
+        let _event_rate = (10/self.difficulty) as i32;
+        if self.ticks % _event_rate as u32 != 0 {
+            return;
+        }
         let spawn_coords = loop {
             let x = rng.random_range(0..self.tiles[0].len() as i32);
             let y = rng.random_range(0..self.tiles.len() as i32);
             if (x, y) != character_location {
-                self.tiles[y as usize][x as usize].spawn_enemy();
+                self.tiles[y as usize][x as usize].spawn_enemy(self.difficulty);
                 println!("Spawned enemy at ({}, {})", x, y);
                 break (x, y);
             }
@@ -34,10 +46,6 @@ impl Overworld {
         //let x = rng.random_range(0..self.tiles[0].len() as i32);
         //let y = rng.random_range(0..self.tiles.len() as i32);
         //self.tiles[spawn_coords.1 as usize][spawn_coords.0 as usize].spawn_enemy();
-    }
-
-    pub fn tick_world(&mut self) {
-        // Placeholder for future world updates
     }
 
     pub fn update_character_position(&mut self, old_position: (i32, i32), new_position: (i32, i32)) {
@@ -52,6 +60,8 @@ impl Overworld {
     }
     
     pub fn print_overworld(&self) {
+        println!("Overworld:");
+        println!("Survival Score: {}, Difficulty: {}, Ticks: {}", self.survival_score, self.difficulty, self.ticks);
         for row in &self.tiles {
             for tile in row {
                 print!(" {} ", tile.get_symbol());
@@ -103,10 +113,26 @@ impl Overworld {
                     character.obtain_coin(enemy.drop_loot());
                     tile.despawn_enemy();
                     println!("Enemy defeated!");
+                    self.survival_score += 1;
                     tile_walkable = true;
                 }
             }
         }
         return tile_walkable;
+    }
+
+    pub fn tick_world(&mut self) {
+        self.ticks += 1;
+        if self.ticks % 20 == 0 {
+            self.advance_difficulty();
+            println!("World difficulty increased to {}", self.difficulty);
+        }
+    }
+
+    fn advance_difficulty(&mut self) {
+        if self.difficulty >= 10 {
+            return;
+        }
+        self.difficulty += 1;
     }
 }

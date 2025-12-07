@@ -33,3 +33,12 @@ pub fn create_goblin() -> MonsterArchetype {
 pub fn create_slime() -> MonsterArchetype {
     MonsterArchetype::new("Slime", 30, 5, 2)
 }
+pub fn create_hobgoblin() -> MonsterArchetype {
+    MonsterArchetype::new("Hobgoblin", 80, 15, 10)
+}
+pub fn create_imp() -> MonsterArchetype {
+    MonsterArchetype::new("Imp", 40, 12, 3)
+}
+pub fn create_rat() -> MonsterArchetype {
+    MonsterArchetype::new("Rat", 20, 4, 1)
+}

@@ -31,7 +31,7 @@ impl Computer {
             3 => "e",
             4 => "w",
             5 => "h",
-            _ => "h",
+            _ => panic!("Invalid dice roll for computer agent"),
         }
     }
 }

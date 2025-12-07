@@ -65,6 +65,7 @@ fn computer_play(mut computer_character: character::Character) {
     loop {
         print!("\x1B[2J\x1B[H");
         overworld.print_overworld();
+        overworld.tick_world();
         println!("{}", computer_character.get_status());
         computer_character.observe_surroundings(&overworld);
         let action = computer.random_agent(&computer_character);
@@ -92,7 +93,7 @@ fn computer_play(mut computer_character: character::Character) {
             println!("Oh no! {} has been defeated!", computer_character.get_name());
             break;
         }
-        thread::sleep(Duration::from_secs(5));
+        thread::sleep(Duration::from_secs(1));
         overworld.new_event(computer_character.get_position());
     }
 }
