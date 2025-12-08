@@ -1,5 +1,5 @@
-use crate::world_tiles::Tile;
 use crate::character;
+use crate::world_tiles::Tile;
 use rand::Rng;
 
 pub struct Overworld {
@@ -21,7 +21,7 @@ impl Overworld {
             tiles.push(row);
         }
         Overworld {
-            tiles, 
+            tiles,
             survival_score: 0,
             ticks: 0,
             difficulty: 1,
@@ -30,25 +30,29 @@ impl Overworld {
 
     pub fn new_event(&mut self, character_location: (i32, i32)) {
         let mut rng = rand::rng();
-        let _event_rate = (10/self.difficulty) as i32;
-        if self.ticks % _event_rate as u32 != 0 {
+        let _event_rate = (10 / self.difficulty) as i32;
+        if !self.ticks.is_multiple_of(_event_rate as u32) {
             return;
         }
-        let spawn_coords = loop {
+        loop {
             let x = rng.random_range(0..self.tiles[0].len() as i32);
             let y = rng.random_range(0..self.tiles.len() as i32);
             if (x, y) != character_location {
                 self.tiles[y as usize][x as usize].spawn_enemy(self.difficulty);
                 println!("Spawned enemy at ({}, {})", x, y);
-                break (x, y);
+                break;
             }
-        };
+        }
         //let x = rng.random_range(0..self.tiles[0].len() as i32);
         //let y = rng.random_range(0..self.tiles.len() as i32);
         //self.tiles[spawn_coords.1 as usize][spawn_coords.0 as usize].spawn_enemy();
     }
 
-    pub fn update_character_position(&mut self, old_position: (i32, i32), new_position: (i32, i32)) {
+    pub fn update_character_position(
+        &mut self,
+        old_position: (i32, i32),
+        new_position: (i32, i32),
+    ) {
         let mut old_tile = self.get_tile_mut(old_position);
         if let Some(tile) = old_tile.as_mut() {
             tile.unset_character();
@@ -56,12 +60,15 @@ impl Overworld {
         let mut new_tile = self.get_tile_mut(new_position);
         if let Some(tile) = new_tile.as_mut() {
             tile.set_character();
-        }   
+        }
     }
-    
+
     pub fn print_overworld(&self) {
         println!("Overworld:");
-        println!("Survival Score: {}, Difficulty: {}, Ticks: {}", self.survival_score, self.difficulty, self.ticks);
+        println!(
+            "Survival Score: {}, Difficulty: {}, Ticks: {}",
+            self.survival_score, self.difficulty, self.ticks
+        );
         for row in &self.tiles {
             for tile in row {
                 print!(" {} ", tile.get_symbol());
@@ -71,20 +78,29 @@ impl Overworld {
     }
 
     pub fn get_tile(&self, position: (i32, i32)) -> Option<&Tile> {
-        if position.0 < 0 || position.1 < 0 || position.1 as usize >= self.tiles.len() || position.0 as usize >= self.tiles[0].len() {
+        if position.0 < 0
+            || position.1 < 0
+            || position.1 as usize >= self.tiles.len()
+            || position.0 as usize >= self.tiles[0].len()
+        {
             //return &Tile::new('#', false, position);
-            return None
+            return None;
         }
-        return Some(&self.tiles[position.1 as usize][position.0 as usize])
+        Some(&self.tiles[position.1 as usize][position.0 as usize])
     }
 
     fn get_tile_mut(&mut self, position: (i32, i32)) -> Option<&mut Tile> {
-        if position.0 < 0 || position.1 < 0 || position.1 as usize >= self.tiles.len() || position.0 as usize >= self.tiles[0].len() {
-            return None
+        if position.0 < 0
+            || position.1 < 0
+            || position.1 as usize >= self.tiles.len()
+            || position.0 as usize >= self.tiles[0].len()
+        {
+            return None;
         }
         Some(&mut self.tiles[position.1 as usize][position.0 as usize])
     }
 
+    /*
     pub fn player_command_attack(&mut self, target_position: (i32, i32), mut player_character: character::Character) -> bool {
         let tile = self.get_tile_mut(target_position);
         if tile.is_some() {
@@ -97,9 +113,14 @@ impl Overworld {
         }
         return false;
     }
-
-    pub fn resolve_combat(&mut self, character: &mut character::Character, target_position: (i32, i32)) -> bool{
+    */
+    pub fn resolve_combat(
+        &mut self,
+        character: &mut character::Character,
+        target_position: (i32, i32),
+    ) -> bool {
         let mut tile_walkable = true;
+        let mut survival_score_increment = 0;
         if let Some(tile) = self.get_tile_mut(target_position) {
             if let Some(enemy) = tile.get_enemy_mut() {
                 let char_damage = character.attack();
@@ -107,23 +128,32 @@ impl Overworld {
                 if enemy.is_alive() {
                     let enemy_damage = enemy.attack();
                     character.take_damage(enemy_damage);
-                    println!("Combat: Character dealt {} damage, took {} damage", char_damage, enemy_damage);
-                    tile_walkable = false;
+                    println!(
+                        "Combat: Character dealt {} damage, took {} damage",
+                        char_damage, enemy_damage
+                    );
+                    println!("{}", enemy.get_hostile_status())
                 } else {
                     character.obtain_coin(enemy.drop_loot());
                     tile.despawn_enemy();
                     println!("Enemy defeated!");
-                    self.survival_score += 1;
-                    tile_walkable = true;
+                    survival_score_increment = 10;
                 }
             }
+            tile_walkable = tile.is_walkable();
         }
-        return tile_walkable;
+
+        self.add_to_survival_score(survival_score_increment);
+        tile_walkable
+    }
+
+    fn add_to_survival_score(&mut self, amount: u32) {
+        self.survival_score += amount;
     }
 
     pub fn tick_world(&mut self) {
         self.ticks += 1;
-        if self.ticks % 20 == 0 {
+        if self.ticks.is_multiple_of(20) {
             self.advance_difficulty();
             println!("World difficulty increased to {}", self.difficulty);
         }

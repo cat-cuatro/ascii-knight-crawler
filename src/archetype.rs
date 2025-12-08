@@ -4,28 +4,29 @@ pub struct Archetype {
     pub health: u32,
     pub stamina: u32,
     pub defense: u32,
-    pub mana: u32,
+    //pub mana: u32,
 }
 
 impl Archetype {
-    pub fn new(name: &str, health: u32, stamina: u32, defense: u32, mana: u32) -> Self {
+    pub fn new(name: &str, health: u32, stamina: u32, defense: u32) -> Self {
         Archetype {
             name: name.to_string(),
             health,
             stamina,
             defense,
-            mana,
         }
     }
+    /*
     pub fn clone(&self) -> Self {
         Archetype {
             name: self.name.clone(),
             health: self.health,
             stamina: self.stamina,
             defense: self.defense,
-            mana: self.mana,
+            //mana: self.mana,
         }
     }
+    */
     pub fn get_health(&self) -> u32 {
         self.health
     }
@@ -35,22 +36,27 @@ impl Archetype {
     pub fn get_defense(&self) -> u32 {
         self.defense
     }
-    pub fn get_mana(&self) -> u32 {
-        self.mana
-    }
     pub fn get_name(&self) -> &str {
         &self.name
     }
 }
 
 pub fn create_knight() -> Archetype {
-    Archetype::new("Knight", 150, 100, 15, 10)
+    Archetype::new("Knight", 150, 100, 15)
 }
 
 pub fn create_warrior() -> Archetype {
-    Archetype::new("Warrior", 120, 150, 5, 0)
+    Archetype::new("Warrior", 120, 150, 5)
 }
 
+pub fn create_custom_archetype(
+    name: &str,
+    health: u32,
+    stamina: u32,
+    defense: u32,
+) -> Archetype {
+    Archetype::new(name, health, stamina, defense)
+}
 
 pub fn cycle_archetype_options() -> Archetype {
     println!("Choose your archetype:");
@@ -60,9 +66,11 @@ pub fn cycle_archetype_options() -> Archetype {
     let mut archetype_choice = String::new();
     //let archetype_choice = archetype_choice.trim();
     loop {
-        io::stdin().read_line(&mut archetype_choice).expect("Failed to read line");
+        io::stdin()
+            .read_line(&mut archetype_choice)
+            .expect("Failed to read line");
         println!("You selected: {}", archetype_choice.trim());
-        match archetype_choice.trim().as_ref() {
+        match archetype_choice.trim() {
             "1" => {
                 println!("You have chosen the Knight archetype!");
                 return create_knight();

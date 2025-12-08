@@ -1,5 +1,5 @@
 use crate::monster_archetype;
-use rand::Rng; 
+use rand::Rng;
 
 pub struct HostileEnemy {
     name: String,
@@ -8,7 +8,7 @@ pub struct HostileEnemy {
     attack: u32,
     defense: u32,
     position: (i32, i32),
-    monster_archetype: monster_archetype::MonsterArchetype,
+    //monster_archetype: monster_archetype::MonsterArchetype,
 }
 
 impl HostileEnemy {
@@ -32,11 +32,11 @@ impl HostileEnemy {
             current_health: monster.get_health(),
             attack: monster.get_attack(),
             defense: monster.get_defense(),
-            position: position,
-            monster_archetype: monster,
+            position,
+            //monster_archetype: monster,
         }
     }
-    // I'm putting movement here, but not using it for the initial implementation to keep scope manageable
+    // I'm putting movement here, but not using it for the initial implementation to keep scope manageable in case I don't have time
     /*
     pub fn move_east(&mut self) {
         let new_position = (self.position.0 + 1, self.position.1);
@@ -59,32 +59,39 @@ impl HostileEnemy {
     }
     */
     pub fn take_damage(&mut self, damage: u32) {
-        if damage >= self.max_health {
-            self.max_health = 0;
+        if damage >= self.current_health {
+            self.current_health = 0;
         } else {
-            self.max_health -= damage;
+            self.current_health -= damage;
         }
     }
 
     pub fn drop_loot(&self) -> u32 {
         let mut rng = rand::rng();
-        let loot_amount = rng.random_range(5..=15);
-        loot_amount
+        let max_drop = 10 + self.defense;
+        rng.random_range(5..=max_drop)
     }
 
     pub fn attack(&self) -> u32 {
         self.attack
     }
-
+    /*
     pub fn heal(&mut self, amount: u32) {
-        self.max_health += amount;
+        self.current_health += amount;
     }
-
+    */
     pub fn is_alive(&self) -> bool {
-        self.max_health > 0
+        self.current_health > 0
     }
 
     pub fn get_name(&self) -> &str {
         &self.name
+    }
+
+    pub fn get_hostile_status(&self) -> String {
+        format!(
+            "({}, {}) {} - Health: {}/{}",
+            self.position.0, self.position.1, self.name, self.current_health, self.max_health
+        )
     }
 }

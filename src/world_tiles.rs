@@ -13,12 +13,12 @@ pub struct Tile {
 impl Tile {
     pub fn new(symbol: char, walkable: bool, position: (i32, i32)) -> Self {
         Tile {
-            symbol: symbol,
-            walkable: walkable,
+            symbol,
+            walkable,
             //description: description.to_string(),
             //item: None,
             npc: None,
-            position: position,
+            position,
         }
     }
 
@@ -46,9 +46,9 @@ impl Tile {
         self.walkable = true;
     }
 
-    pub fn get_enemy(&self) -> Option<&HostileEnemy> {
-        self.npc.as_ref()
-    }
+    //pub fn get_enemy(&self) -> Option<&HostileEnemy> {
+    //    self.npc.as_ref()
+    //}
 
     pub fn get_enemy_mut(&mut self) -> Option<&mut HostileEnemy> {
         self.npc.as_mut()
