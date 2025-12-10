@@ -68,3 +68,46 @@ impl Tile {
         self.walkable
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_enemy_spawn_despawn() {
+        let mut tile = Tile::new('.', true, (0, 0));
+        tile.spawn_enemy(1);
+        assert!(tile.npc.is_some());
+        tile.despawn_enemy();
+        assert!(tile.npc.is_none());
+    }
+
+    #[test]
+    fn test_tile_walkable() {
+        let mut tile = Tile::new('.', true, (0, 0));
+        assert!(tile.is_walkable());
+        tile.set_character();
+        assert!(!tile.is_walkable());
+        tile.unset_character();
+        assert!(tile.is_walkable());
+        tile.spawn_enemy(1);
+        assert!(!tile.is_walkable());
+        tile.despawn_enemy();
+        assert!(tile.is_walkable());
+    }
+
+    #[test]
+    fn test_tile_symbol() {
+        let mut tile = Tile::new('.', true, (0, 0));
+        assert_eq!(tile.get_symbol(), '.');
+        tile.set_character();
+        assert_eq!(tile.get_symbol(), '@');
+        tile.unset_character();
+        assert_eq!(tile.get_symbol(), '.');
+        tile.spawn_enemy(1);
+        let symbol = tile.get_symbol();
+        assert!(symbol != '.');
+        tile.despawn_enemy();
+        assert_eq!(tile.get_symbol(), '.');
+    }
+}

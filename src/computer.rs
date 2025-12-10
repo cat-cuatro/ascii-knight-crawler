@@ -14,6 +14,7 @@ impl Computer {
         }
     }
 
+    #[allow(clippy::needless_late_init)] // when I tried to implement clippy's suggestion here, it broke the code
     pub fn random_agent(&self, character: &character::Character) -> &str {
         let mut rng = rand::rng();
         let dice;
@@ -34,4 +35,8 @@ impl Computer {
 
     // This would be a good place for me to add Q-Learning, and the project is set up to support it, but I don't
     // have enough time to implement it properly. So I'm keeping it as a random agent.
+    #[allow(dead_code)]
+    pub fn q_learning_agent(&self, _character: &character::Character) -> &str {
+        "n" // placeholder
+    }
 }

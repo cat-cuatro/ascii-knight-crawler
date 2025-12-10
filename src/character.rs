@@ -41,7 +41,7 @@ impl Direction {
         ]
     }
 
-    pub fn to_string(&self) -> &str {
+    pub fn to_string(self) -> &'static str {
         match self {
             Direction::North => "North",
             Direction::South => "South",
@@ -71,7 +71,14 @@ impl Character {
         }
     }
 
-    pub fn new_custom(name: &str, archetype_name: &str, health: u32, stamina: u32, defense: u32) -> Self {
+    #[allow(dead_code)] // unit testable
+    pub fn new_custom(
+        name: &str,
+        archetype_name: &str,
+        health: u32,
+        stamina: u32,
+        defense: u32,
+    ) -> Self {
         let class = archetype::create_custom_archetype(archetype_name, health, stamina, defense);
         Character {
             name: name.to_string(),
@@ -209,7 +216,7 @@ impl Character {
         self.coin += amount;
     }
 
-    /*
+    #[allow(dead_code)] // future use
     pub fn spend_coin(&mut self, amount: u32) -> bool {
         if self.coin >= amount {
             self.coin -= amount;
@@ -218,7 +225,7 @@ impl Character {
             false
         }
     }
-    */
+
     pub fn heal(&mut self, amount: u32) {
         //if self.spend_coin(amount) {
         //    self.current_health += amount;
@@ -280,9 +287,15 @@ mod tests {
     #[test]
     fn test_movement() {
         let mut character = Character::new_custom("Hero", "CustomClass", 100, 100, 10);
-        for direction in &[Direction::North, Direction::South, Direction::West, Direction::East] {
+        for direction in &[
+            Direction::North,
+            Direction::South,
+            Direction::West,
+            Direction::East,
+        ] {
             let old_position = character.get_position();
-            let new_old_position = match direction { // Test movement always returns old position
+            let new_old_position = match direction {
+                // Test movement always returns old position
                 Direction::North => character.move_north(true),
                 Direction::East => character.move_east(true),
                 Direction::West => character.move_west(true),
@@ -290,7 +303,8 @@ mod tests {
                 _ => panic!("Invalid direction for movement test"),
             };
             assert_eq!(new_old_position, old_position);
-            let expected_position = match direction { // Test new position is correct
+            let expected_position = match direction {
+                // Test new position is correct
                 Direction::North => (old_position.0, old_position.1 - 1),
                 Direction::East => (old_position.0 + 1, old_position.1),
                 Direction::West => (old_position.0 - 1, old_position.1),

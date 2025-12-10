@@ -42,3 +42,22 @@ pub fn create_imp() -> MonsterArchetype {
 pub fn create_rat() -> MonsterArchetype {
     MonsterArchetype::new("Rat", 20, 4, 1)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_monster_archetype_creation() {
+        let goblin = create_goblin();
+        assert_eq!(goblin.get_name(), "Goblin");
+    }
+
+    #[test]
+    fn test_attributes_of_monster_archetype() {
+        let monster = MonsterArchetype::new("TestMonster", 100, 20, 10);
+        assert_eq!(monster.get_health(), 100);
+        assert_eq!(monster.get_attack(), 20);
+        assert_eq!(monster.get_defense(), 10);
+    }
+}

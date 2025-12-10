@@ -16,17 +16,6 @@ impl Archetype {
             defense,
         }
     }
-    /*
-    pub fn clone(&self) -> Self {
-        Archetype {
-            name: self.name.clone(),
-            health: self.health,
-            stamina: self.stamina,
-            defense: self.defense,
-            //mana: self.mana,
-        }
-    }
-    */
     pub fn get_health(&self) -> u32 {
         self.health
     }
@@ -42,19 +31,15 @@ impl Archetype {
 }
 
 pub fn create_knight() -> Archetype {
-    Archetype::new("Knight", 150, 100, 15)
+    Archetype::new("Knight", 150, 200, 15)
 }
 
 pub fn create_warrior() -> Archetype {
-    Archetype::new("Warrior", 120, 150, 5)
+    Archetype::new("Warrior", 120, 250, 5)
 }
 
-pub fn create_custom_archetype(
-    name: &str,
-    health: u32,
-    stamina: u32,
-    defense: u32,
-) -> Archetype {
+#[allow(dead_code)] // unused function for now
+pub fn create_custom_archetype(name: &str, health: u32, stamina: u32, defense: u32) -> Archetype {
     Archetype::new(name, health, stamina, defense)
 }
 
@@ -84,5 +69,19 @@ pub fn cycle_archetype_options() -> Archetype {
                 archetype_choice.clear();
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_archetype_creation() {
+        let knight = create_knight();
+        assert_eq!(knight.name, "Knight");
+        assert_eq!(knight.health, 150);
+        assert_eq!(knight.stamina, 200);
+        assert_eq!(knight.defense, 15);
     }
 }

@@ -43,9 +43,6 @@ impl Overworld {
                 break;
             }
         }
-        //let x = rng.random_range(0..self.tiles[0].len() as i32);
-        //let y = rng.random_range(0..self.tiles.len() as i32);
-        //self.tiles[spawn_coords.1 as usize][spawn_coords.0 as usize].spawn_enemy();
     }
 
     pub fn update_character_position(
@@ -100,20 +97,6 @@ impl Overworld {
         Some(&mut self.tiles[position.1 as usize][position.0 as usize])
     }
 
-    /*
-    pub fn player_command_attack(&mut self, target_position: (i32, i32), mut player_character: character::Character) -> bool {
-        let tile = self.get_tile_mut(target_position);
-        if tile.is_some() {
-            if let Some(enemy) = tile.expect("None or an enemy").get_enemy_mut() {
-                enemy.take_damage(player_character.attack());
-                println!("Attacked enemy at position {:?} for {} damage!", target_position, player_character.attack());
-                player_character.take_damage(enemy.attack());
-                return true;
-            }
-        }
-        return false;
-    }
-    */
     pub fn resolve_combat(
         &mut self,
         character: &mut character::Character,
@@ -164,5 +147,45 @@ impl Overworld {
             return;
         }
         self.difficulty += 1;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_difficulty_advancement() {
+        let mut overworld = Overworld::new((10, 10));
+        assert_eq!(overworld.difficulty, 1);
+        for _ in 0..20 {
+            overworld.tick_world();
+        }
+        assert_eq!(overworld.difficulty, 2);
+    }
+
+    #[test]
+    fn test_survival_score_increment() {
+        let mut overworld = Overworld::new((10, 10));
+        assert_eq!(overworld.survival_score, 0);
+        overworld.add_to_survival_score(50);
+        assert_eq!(overworld.survival_score, 50);
+    }
+
+    #[test]
+    fn test_new_event_spawns_enemy() {
+        let mut overworld = Overworld::new((10, 10));
+        let character_location = (5, 5);
+        overworld.ticks = 10; // Set ticks to trigger event
+        overworld.new_event(character_location);
+        let mut enemy_found = false;
+        for row in overworld.tiles {
+            for mut tile in row {
+                if let Some(_) = tile.get_enemy_mut() {
+                    enemy_found = true;
+                }
+            }
+        }
+        assert!(enemy_found, "No enemy was spawned during new_event");
     }
 }
