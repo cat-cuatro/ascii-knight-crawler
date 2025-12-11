@@ -79,7 +79,7 @@ fn computer_play(mut computer_character: character::Character) {
             );
             break;
         }
-        thread::sleep(Duration::from_secs(1));
+        thread::sleep(Duration::from_secs(2));
         overworld.new_event(computer_character.get_position());
     }
 }
