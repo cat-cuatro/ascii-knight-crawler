@@ -12,7 +12,7 @@ A procedural dungeon crawler using text. I'll be using RPG elements to drive des
 - etc ..
 
 # Final Submission
-For my final submission, I implemented Bart's suggestion to have the character fully autonomous.
+For my final submission, I implemented Bart's suggestion to have the character fully autonomous. Application is simple to run: `cargo run`.
 ### What has been built
 Essentially, I've been a small simulation game. I didn't get to all of my ideas; like many projects, my ambition was quickly put in check! However, I can create a character and have it controlled by a randomly acting computer agent. While I didn't implement Q-Learning like I intended once I pivoted, the architectural design is set up in a way that *any* agent could be coded into `computer.rs` as long as it returns a valid action to `computer_play`.
 I do everything on the command line by using ANSI escapes to clear the terminal and re-print the current state space. The application isn't bug-free, but achieves the purpose of simulating the behavior of a totally random behaving knight (or warrior) character wandering about in a 10x10 square. When the character moves onto a tile already occupied by an enemy, it instead behaves as an attack. The simulation ends when the character runs out of health or stamina. As the character defeats enemies, its survial score increments. Right now the survival score is simply tethered to how many enemies are defeated. As the game runs, difficulty increases corresponding to the number of game ticks that have passed.

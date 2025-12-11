@@ -227,10 +227,10 @@ impl Character {
     }
 
     pub fn heal(&mut self, amount: u32) {
-        //if self.spend_coin(amount) {
-        //    self.current_health += amount;
-        //}
         self.current_health += amount;
+        if self.current_health > self.max_health {
+            self.current_health = self.max_health;
+        }
     }
 
     pub fn is_alive(&self) -> bool {
@@ -274,6 +274,14 @@ mod tests {
         character.take_damage(50);
         character.heal(30);
         assert_eq!(character.current_health, 80);
+    }
+
+    #[test]
+    fn test_heal_does_not_exceed_max_health() {
+        let mut character = Character::new_custom("Hero", "CustomClass", 100, 100, 10);
+        character.take_damage(20);
+        character.heal(50);
+        assert_eq!(character.current_health, 100);
     }
 
     #[test]

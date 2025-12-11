@@ -95,3 +95,31 @@ impl HostileEnemy {
         )
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_hostile_enemy_take_damage() {
+        let mut enemy = HostileEnemy::new((0, 0), 1);
+        let initial_health = enemy.current_health;
+        enemy.take_damage(10);
+        assert_eq!(enemy.current_health, initial_health - 10);
+    }
+
+    #[test]
+    fn test_hostile_enemy_is_alive() {
+        let mut enemy = HostileEnemy::new((0, 0), 1);
+        assert!(enemy.is_alive());
+        enemy.take_damage(enemy.current_health);
+        assert!(!enemy.is_alive());
+    }
+
+    #[test]
+    fn test_hostile_enemy_drop_loot() {
+        let enemy = HostileEnemy::new((0, 0), 1);
+        let loot = enemy.drop_loot();
+        assert!(loot >= 5 && loot <= 10 + enemy.defense);
+    }
+}
